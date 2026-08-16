@@ -1101,7 +1101,8 @@ int[] numbers = new int[5];
 
 ```java
 int[] arr = {10, 20, 30};  
-arr.length;      // 3 (نه متد، یک field است) arr[0];          // 10 arr[arr.length - 1];  // آخرین عنصر = 30  // ایندکس از 0 شروع می‌شه // arr[3] → ArrayIndexOutOfBoundsException
+arr.length;      // 3 (نه متد، یک field است) arr[0];          // 10 
+arr[arr.length - 1];  // آخرین عنصر = 30  // ایندکس از 0 شروع می‌شه // arr[3] → ArrayIndexOutOfBoundsException
 ```
 
 
@@ -1174,6 +1175,55 @@ int[] arr = new int[5];
 // arr.length همیشه 5 باقی می‌مونه، نمی‌شه resize کرد // برای resize باید آرایه جدید بسازی و کپی کنی، یا از ArrayList استفاده کنی
 ```
 
+## آیا سایز آرایه تغییر می‌کند؟
+
+**خیر.** در جاوا، آرایه بعد از ساخت **اندازه ثابت (fixed)** دارد و تا آخر عمرش همان طول می‌ماند. هیچ راهی برای بزرگ یا کوچک کردن آرایه در جای خود (in‑place) وجود ندارد.
+
+```java
+int[] arr = new int[5];       // طول ثابت = 5
+ System.out.println(arr.length); // 5  // نمی‌توانی طول را عوض کنی
+```
+
+---
+
+## اگر یک عضو جدید اضافه بشه چه می‌شود؟
+
+جاوا **استثنا** می‌اندازد، نه اینکه خودش آرایه را بزرگ کند.
+
+
+
+```java 
+int[] arr = new int[3]; 
+ arr[0] = 10; 
+ arr[1] = 20;
+arr[2] = 30;
+arr[3] = 40; // ❌ خطا
+```
+
+این خطا را پرتاب می‌کند:
+
+
+
+`Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: Index 3 out of bounds for length 3`
+
+---
+
+## پس اگر بخواهم آیتم اضافه کنم چه کنم؟
+
+
+
+### ساخت آرایه جدید و کپی (روش دستی)
+
+
+
+```java
+int[] oldArr = {10, 20, 30}; 
+ int[] newArr = Arrays.copyOf(oldArr, oldArr.length + 1); 
+ newArr[oldArr.length] = 40; 
+  System.out.println(Arrays.toString(newArr)); // [10, 20, 30, 40]
+```
+
+---
 ### ۲. آرایه‌ها Reference type هستن
 
 
