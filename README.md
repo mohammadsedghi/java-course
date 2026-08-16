@@ -1479,3 +1479,456 @@ int x = 10;
 `0 1 2 4 5 6 7`
 
 ---
+# Interface در جاوا
+
+اینترفیس یک **قرارداد (contract)** است که مشخص می‌کند یک کلاس **چه متدهایی باید داشته باشد**، بدون اینکه پیاده‌سازی آن‌ها را مشخص کند.
+
+## تعریف
+
+
+```java
+`public interface Animal {
+     void eat();
+    void move();
+     }
+```
+
+> نکته: متدهای interface به‌طور پیش‌فرض `public` و `abstract` هستند؛ لازم نیست بنویسی، ولی مفهومش این است.
+
+---
+
+## استفاده (پیاده‌سازی)
+
+یک کلاس با کلمه `implements` از interface استفاده می‌کند و **باید همه متدهایش را پیاده کند**:
+
+
+```java
+public class Dog implements Animal { 
+    @Override  
+       public void eat() {  
+           System.out.println("Dog is eating"); 
+               }   
+                  @Override   
+                    public void move() { 
+                            System.out.println("Dog is running"); 
+                                } 
+ }
+```
+
+---
+# Abstract در جاوا
+
+کلمه `abstract` یعنی چیزی **ناقص / ناتمام** است که باید توسط کلاس دیگری کامل شود.
+دو جا در جاوا به کار می‌رود:
+
+1. **کلاس abstract**
+2. **متد abstract**
+
+---
+
+## ۱. متد Abstract
+
+متدی که **فقط امضا (signature) دارد و بدنه ندارد**:
+
+
+```java
+abstract void makeSound();
+```
+
+نکته: در متد abstract فقط تعریف می‌کنیم، نه پیاده‌سازی. بدنه‌اش را کلاس فرزند می‌نویسد.
+
+---
+
+## ۲. کلاس Abstract
+
+کلاسی که با `abstract` تعریف شده باشد.
+
+چنین کلاسی را **نمی‌توان مستقیم new کرد**.
+
+
+
+```java
+public abstract class Animal { 
+    public abstract void makeSound(); // متد abstract 
+         public void sleep() {              // متد عادی   
+               System.out.println("Sleeping...");   
+                 }
+                  }
+```
+
+حالا کلاس فرزند باید `makeSound()` را پیاده کند:
+
+
+```java
+public class Dog extends Animal { 
+    @Override 
+        public void makeSound() { 
+                System.out.println("Woof");   
+}
+}
+```
+
+---
+
+## چرا کلاس abstract؟
+
+### ۱. کلاسی که نباید مستقیم ساخته شود
+
+مثلاً «حیوان» مفهوم کلی است؛ نمی‌خواهیم `new Animal()` بسازیم، بلکه `new Dog()` یا `new Cat()`.
+
+### ۲. داشتن هم متد ناقص و هم متد کامل
+
+برخلاف `interface` قدیمی که همه متدها ناقص بودند، در کلاس abstract می‌توانی:
+
+- متد abstract (ناقص) داشته باشی
+- متد عادی با بدنه کامل داشته باشی
+- فیلد و constructor داشته باشی
+
+### ۳. حالت مشترک (common state) بین فرزندان
+
+
+
+```java
+public abstract class Shape { 
+    protected String color; 
+         public Shape(String color) { 
+                 this.color = color;  
+                    }    
+                      public abstract double area();     // هر شکل باید خودش حساب کند     
+                       public void printColor() {         // مشترک بین همه    
+                            System.out.println("Color: " + color); 
+                                } 
+                                }
+```
+
+---
+
+## قوانین مهم
+
+1. اگر کلاسی **حداقل یک متد abstract** داشته باشد، **خود کلاس هم باید abstract** باشد.
+2. کلاس abstract را نمی‌توان `new` کرد.
+3. کلاس فرزند **باید همه متدهای abstract** را پیاده کند، وگرنه خودش هم باید abstract شود.
+4. کلاس abstract **می‌تواند constructor** داشته باشد (برای مقداردهی فیلدها).
+5. کلاس abstract می‌تواند متد `static` و `final` هم داشته باشد.
+6. یک کلاس فقط یک کلاس abstract را می‌تواند `extends` کند.
+
+---
+
+## مثال کامل
+
+
+
+```java
+abstract class Employee {  
+   protected String name; 
+   protected double salary;
+   public Employee(String name, double salary) { 
+           this.name = name; 
+           this.salary = salary;    
+            }      // هر کارمند باید این را خودش حساب کند     
+                   public abstract double calculateBonus(); 
+                        public void showInfo() {  
+                               System.out.println(name + " -> " + salary); 
+                                   }
+                                    }  
+    class Developer extends Employee { 
+        public Developer(String name, double salary) {
+                 super(name, salary); 
+                     }  
+      @Override   
+        public double calculateBonus() {  
+        return salary * 0.15;  
+           } 
+           } 
+            class Manager extends Employee {  
+               public Manager(String name, double salary) { 
+                       super(name, salary); 
+    }    
+      @Override 
+          public double calculateBonus() { 
+                  return salary * 0.30;   
+                    } 
+                    } 
+      public class Main {
+               public static void main(String[] args) {
+                     Developer dev = new Developer("Ali", 100000);
+                              Manager mgr = new Manager("Sara", 150000);  
+     System.out.println("Dev bonus: " + dev.calculateBonus());         System.out.println("Mgr bonus: " + mgr.calculateBonus());  
+        }
+         }
+```
+
+---
+
+## Abstract Class در مقابل Interface
+
+
+
+| ویژگی                | Abstract Class                    | Interface                            |
+| -------------------- | --------------------------------- | ------------------------------------ |
+| کلمه کلیدی           | `extends`                         | `implements`                         |
+| تعداد                | فقط یکی                           | چند تا هم‌زمان                       |
+| فیلد با حالت (state) | بله                               | فقط ثابت (`public static final`)     |
+| متد با بدنه          | بله (عادی)                        | بله (`default` از Java 8)            |
+| constructor          | دارد                              | ندارد                                |
+| وراثت چندگانه        | خیر                               | بله                                  |
+| وقتی استفاده کنی     | اشیاء «هم‌خانواده» با state مشترک | قرارداد/قابلیت بدون وابستگی به state |
+
+---
+# وراثت (Inheritance) در جاوا
+
+وراثت یعنی یک کلاس **ویژگی‌ها و رفتارهای کلاس دیگر را به ارث ببرد** تا از کدنویسی تکراری جلوگیری شود. در جاوا با کلمه کلیدی `extends` انجام می‌شود.
+
+
+
+## مفاهیم پایه
+
+- **Superclass / Parent (والد)**: کلاسی که ویژگی‌ها از آن ارث‌بری می‌شود.
+- **Subclass / Child (فرزند)**: کلاسی که ویژگی‌ها را به ارث می‌برد.
+- رابطه با عبارت **“is-a”** بیان می‌شود: مثلاً `Dog is an Animal` (سگ یک حیوان است).
+
+
+
+```java
+class Animal { // Parent   
+  void eat() {   
+        System.out.println("Eating..."); 
+            }
+             } 
+              class Dog extends Animal {   // Child 
+                  void bark() { 
+                          System.out.println("Woof!");  
+                             } 
+                             }
+```
+
+حالا `Dog` هم متد خودش و هم متد والد را دارد:
+
+
+
+```java
+Dog dog = new Dog(); 
+dog.eat();   // از Animal به ارث برده شده
+ dog.bark();  // متد خودش`
+```
+
+---
+
+## کلمه کلیدی `super`
+
+برای دسترسی به اعضای کلاس والد از داخل فرزند استفاده می‌شود.
+
+
+
+```java
+class Animal {  
+   String name = "Animal"; 
+        Animal() { 
+                System.out.println("Animal constructor"); 
+                    }   
+                       void eat() {  
+                              System.out.println("Animal eats"); 
+                                  }
+                                   }  class Dog extends Animal {   
+                                     String name = "Dog"; 
+                                          Dog() {  
+                                                 super();//فراخوانی constructor والد     
+                                                    
+ System.out.println("Dog constructor");  
+    }     
+     void showNames() { 
+             System.out.println(super.name);  // "Animal"  
+                    System.out.println(this.name);   // "Dog"    
+                     }    
+                       void eat() {  
+                              super.eat();          // فراخوانی متد والد   
+                                    System.out.println("Dog eats");    
+                                     }
+                                      }
+```
+
+> نکته: `super()` باید **اولین خط** در constructor فرزند باشد. اگر ننویسی، جاوا به‌طور خودکار سازنده بدون پارامتر والد را صدا می‌زند.
+
+---
+
+## بازنویسی متد (`@Override`)
+
+فرزند می‌تواند متد والد را با پیاده‌سازی جدید **بازنویسی** کند:
+
+
+
+```java
+class Animal {  
+   void sound() {  
+          System.out.println("Some sound"); 
+              } 
+              } 
+               class Cat extends Animal { 
+                   @Override 
+                       void sound() { 
+                               System.out.println("Meow"); 
+                                   } 
+                                   }
+```
+
+
+
+```java
+Animal a = new Cat();
+ a.sound();  // "Meow"  ← متد فرزند صدا زده می‌شود (polymorphism)`
+```
+
+---
+
+## انواع وراثت در جاوا
+
+
+|نوع|پشتیبانی|
+|---|---|
+|Single (تک‌والدی)|✅ بله|
+|Multilevel (چندسطحی)|✅ بله|
+|Hierarchical (سلسله‌مراتبی)|✅ بله|
+|Multiple (چندگانه)|❌ با کلاس نه، فقط با interface|
+
+### Single
+
+
+
+```java
+class A {} 
+class B extends A {}
+```
+
+### Multilevel
+
+
+
+```java
+class A {} 
+class B extends A {} 
+class C extends B {}
+```
+
+### Hierarchical
+
+
+
+```java
+class A {} 
+class B extends A {}
+class C extends A {}
+```
+
+### Multiple (ممنوع با کلاس)
+
+
+
+```java
+// ❌ خطا در جاوا: // 
+class C extends A, B {}
+```
+
+ولی با interface امکان‌پذیر است:
+
+
+
+```java
+interface Flyable { 
+void fly();
+ } 
+ interface Swimmable { 
+ void swim(); 
+ }
+   class Duck implements Flyable, Swimmable {  
+      public void fly() { /* ... */ }  
+         public void swim() { /* ... */ } 
+         }
+```
+
+---
+
+## کلمه کلیدی `final` و وراثت
+
+- کلاس `final` را نمی‌توان ارث‌بری کرد:
+
+
+
+```java
+final class FinalClass {}
+ // class Sub extends FinalClass {}  // ❌ خطا
+```
+
+- متد `final` را نمی‌توان override کرد:
+
+
+```java
+class A {    
+ final void method() {}
+ }
+ class B extends A {   
+   // void method() {}  // ❌ خطا
+  }
+```
+
+---
+
+## مثال کامل و کاربردی
+
+
+
+```java
+class Vehicle {    
+ protected String brand; 
+     protected int speed; 
+          public Vehicle(String brand) {
+                   this.brand = brand;  
+                          this.speed = 0; 
+                              }   
+     public void accelerate(int amount) {   
+           speed += amount;    
+            }  
+               
+ public void show() { 
+         System.out.println(brand + " -> speed: " + speed); 
+             }
+              }
+     class Car extends Vehicle {
+     private int doors; 
+        public Car(String brand, int doors) { 
+         super(brand);          // صدا زدن سازنده والد 
+                 this.doors = doors;  
+                    }  
+                        @Override 
+                            public void show() {   
+                                  super.show();   // استفاده از رفتار والد    
+                                       System.out.println("Doors: " + doors);  
+                                          }
+                                           } 
+   public class Main {
+        public static void main(String[] args) {
+     Car car = new Car("Toyota", 4); 
+          car.accelerate(60);  
+          car.show();   
+  } 
+}
+```
+
+خروجی:
+
+
+
+`Toyota -> speed: 60 Doors: 4`
+
+---
+
+## مزایای وراثت
+
+1. **کدنویسی کمتر (Code reuse)** — کد مشترک یک‌بار نوشته می‌شود.
+2. **چندشکلی (Polymorphism)** — با یک نوع والد می‌توان با چند فرزند کار کرد.
+3. **قابل توسعه بودن** — کلاس جدید با کمترین تغییر اضافه می‌شود.
+
+## محدودیت‌ها
+
+1. فقط **یک کلاس والد** (Single inheritance).
+2. ممکن است باعث **وابستگی زیاد** بین کلاس‌ها شود.
+3. ارث‌بری، خصوصیات `private` والد را در دسترس فرزند قرار نمی‌دهد.
