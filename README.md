@@ -1479,6 +1479,153 @@ int x = 10;
 `0 1 2 4 5 6 7`
 
 ---
+## `switch-case` 
+
+سوییچ یک ساختار کنترل جریان است برای وقتی که می‌خواهی بر اساس **مقدار یک متغیر/عبارت** بین چند
+حالت انتخاب کنید.
+- وقتی **حالت‌های زیاد** و **مقایسه با یک مقدار ثابت** داری → `switch` خواناتر است.
+- وقتی شرط‌ها پیچیده‌اند (بازه‌ها، چند متغیر، شرط ترکیبی) → `if-else` مناسب‌تر است.
+
+## شکل کلاسیک (Java 8+)
+
+
+
+```java
+int day = 3; 
+ switch (day) { 
+     case 1:  
+            System.out.println("Sat");  
+                   break; 
+     case 2:  
+           System.out.println("Sun");  
+                  break;    
+     case 3:       
+       System.out.println("Mon"); 
+               break;   
+    default:     
+        System.out.println("Unknown"); 
+        }
+```
+
+### نکته مهم: `break`
+
+اگر `break` نگذاری، برنامه به اجرای caseهای بعدی هم ادامه می‌دهد (Fall-through).
+
+
+## Fall-through (رفتار بدون break)
+
+
+
+```java
+int x = 1;
+ switch (x) {
+      case 1: 
+              System.out.println("A");
+        case 2:   
+              System.out.println("B");
+                   default:   
+                         System.out.println("C"); 
+   }
+```
+
+خروجی:
+
+
+
+`A B C`
+
+گاهی از این رفتار عمداً استفاده می‌شود (مثلاً چند case یک خروجی مشترک داشته باشند).
+
+
+
+## چند case برای یک نتیجه
+
+
+
+```java
+char ch = 'a'; 
+ switch (ch) { 
+     case 'a': 
+     case 'A':  
+    System.out.println("A letter"); 
+     break;     
+     default:  
+            System.out.println("Other");
+             }
+```
+## Switch Expression 
+
+در جاواهای جدیداز نسخه 12 به بعد و به صورت پایدار از نسخه 14، `switch` می‌تواند **مقدار برگرداند** و سینتکس تمیزتری دارد:
+
+
+
+```java
+int day = 3;
+  String name = switch (day) { 
+      case 1 -> "Sat";  
+      case 2 -> "Sun";  
+      case 3 -> "Mon"; 
+     default -> "Unknown";
+                 }; 
+       System.out.println(name);
+```
+
+### اگر بدنه چند خطی باشد از `yield` استفاده می‌شود:
+
+کلمه کلیدی **`yield`** (که از جاوا 14 به صورت نهایی اضافه شد) برای **برگرداندن یک مقدار (Return) از داخل یک بلوک چندخطی در `Switch Expression`** استفاده می‌شود.
+
+به زبان ساده: **`yield` همان نقش `return` را بازی می‌کند، اما فقط مخصوصِ بلوک‌های داخلِ ساختار `switch` است** (نه کل متد).
+### چرا به `yield` نیاز پیدا کردیم؟
+
+در جاواهای مدرن، `switch` می‌تواند مستقیماً یک مقدار تولید کند و در یک متغیر ریخته شود.
+
+اگر خروجی یک خطی باشد، از `->` استفاده می‌کنیم و نیازی به هیچ کلمه‌ای نیست:
+
+
+
+```java
+String dayName = switch (day) {   
+  case 1 -> "Saturday";
+case 2 -> "Sunday";
+     default -> "Unknown";
+      };
+```
+
+اما اگر برای محاسبه‌ی مقدار یک `case` نیاز به **چند خط کد، متغیر محلی یا لاگ زدن** داشته باشیم و از آکولاد `{ }` استفاده کنیم، جاوا چطور باید بفهمد خروجی نهایی آن بلوک چیست؟ **اینجاست که از `yield` استفاده می‌کنیم.**
+
+
+```java
+String result = switch (day) { 
+    case 1, 2 -> "Weekend"; 
+    case 3 -> {    
+         String s = "Workday";   
+               yield s;  
+                  }  
+      default -> "Unknown";
+       };
+```
+
+```java
+int statusCode = 404;
+ String message = switch (statusCode) {
+  case 200 -> "OK";
+   case 404 -> { // چند خط کد برای لاگ و پردازش
+    System.out.println("Resource not found, preparing 404 response...");
+     String customMsg = "Page not found on server"; 
+     yield customMsg; // این مقدار به عنوان خروجی این
+     //case 
+     //ارسال می‌شود
+       } 
+      case 500 -> {
+       System.err.println("Server error occurred!");
+        yield "Internal Server Error";
+         } 
+        default -> { yield "Unknown Status"; }
+         };
+          System.out.println(message); // چاپ می‌کند: Page not found on server
+```
+---
+
 # exception
 
 در جاوا، `Exception`ها چند دسته‌ی اصلی دارند. اگر بخواهیم ساده و کاربردی بگوییم:
@@ -1528,7 +1675,6 @@ System.out.println(s.length()); // NullPointerException
 
 - `OutOfMemoryError`
 - `StackOverflowError`
-- `NoClassDefFoundError`
 
 
 
@@ -1673,7 +1819,7 @@ try {
 
 
 ```java
-`try { 
+try { 
     System.out.println("A");  
        int x = 10 / 0;   
          System.out.println("B");
@@ -1712,7 +1858,7 @@ End`
 
 
 ```java
-`try {  
+try {  
    int[] arr = {1, 2, 3};   
 	System.out.println(arr[5]); 
      }
@@ -1739,9 +1885,62 @@ public void readFile() throws IOException {
      }
 ```
 
+## stack trace
+
+**استک تریس (Stack Trace)** ردپا یا تاریخچه‌ای از **مسیر فراخوانی متدها (Call Stack)** در لحظه‌ی دقیق وقوع خطا است.
+ استک تریس به شما نشان می‌دهد **«چه خطایی»** رخ داده و برنامه از طریق **«کدام متدها و در چه خطوطی از کد»** عبور کرده تا به این نقطه از خطا رسیده است.
+
+فرض کنید ۳ متد داریم که پشت سر هم یکدیگر را صدا می‌زنند:
+
+
+```java
+public class Main { 
+    public static void main(String[] args) { 
+            methodA();   
+              }  
+       static void methodA() { 
+        methodB();  
+       }   
+    static void methodB() {     
+        String text = null;  
+       System.out.println(text.length());      
+                } 
+                }
+```
+
+وقتی این برنامه اجرا شود، JVM خروجی زیر (همان Stack Trace) را چاپ می‌کند:
 
 
 
+```
+Exception in thread "main" java.lang.NullPointerException: Cannot invoke "String.length()" because "text" is null 
+	at Main.methodB(Main.java:12) 
+		at Main.methodA(Main.java:8) 
+			at Main.main(Main.java:4)
+```
+### استک تریس را چطور بخوانیم؟
+
+همیشه Stack Trace را باید **از بالا به پایین** بخوانید:
+
+1. **خط اول (نوع و علت خطا):**`java.lang.NullPointerException` → چه خطایی رخ داده است.
+2. **بالاترین خط در لیست `at ...` (محل دقیق رخداد):**`at Main.methodB(Main.java:12)` → 
+3. خطا دقیقاً داخل فایل `Main.java` و در متد `methodB` و **خط ۱۲** اتفاق افتاده است.
+4. **خطوط بعدی (مسیر پیموده‌شده):**
+    - متد `methodB` از داخل متد `methodA` در **خط ۸** صدا زده شده بود.
+    - متد `methodA` هم از داخل متد `main` در **خط ۴** فراخوانی شده بود.
+--- 
+### چطور در کد جاوا استک تریس را بگیریم؟
+
+1. **چاپ در خروجی استاندارد خطا:**
+
+
+```java
+   try {  
+         // ...    
+         } catch (Exception e) {
+                 e.printStackTrace(); // چاپ روی کنسول   
+                  }
+```
 ---
 
 # Interface در جاوا
