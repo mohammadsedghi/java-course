@@ -1479,6 +1479,271 @@ int x = 10;
 `0 1 2 4 5 6 7`
 
 ---
+# exception
+
+در جاوا، `Exception`ها چند دسته‌ی اصلی دارند. اگر بخواهیم ساده و کاربردی بگوییم:
+
+## 1) Checked Exception
+
+این‌ها اکسپشن‌هایی هستند که **کامپایلر مجبور می‌کند** آن‌ها را هندل کنی یا در `throws` اعلام کنی.
+
+### مثال:
+
+- `IOException`
+- `SQLException`
+- `ClassNotFoundException`
+## 2) Unchecked Exception
+
+این‌ها در زمان کامپایل اجباری نیستند و معمولاً از `RuntimeException` ارث‌بری می‌کنند.
+
+### مثال:
+
+- `NullPointerException`
+- `ArithmeticException`
+- `ArrayIndexOutOfBoundsException`
+- `IllegalArgumentException`
+
+### نمونه:
+
+
+
+```java
+int x = 10 / 0; // ArithmeticException
+```
+
+
+
+```java
+String s = null;
+System.out.println(s.length()); // NullPointerException
+```
+
+---
+
+## 3) Error
+
+این‌ها معمولاً خطاهای جدی سیستم هستند و معمولاً نباید مثل exception عادی هندل شوند.
+
+### مثال:
+
+- `OutOfMemoryError`
+- `StackOverflowError`
+- `NoClassDefFoundError`
+
+
+
+# سلسله‌مراتب کلی
+
+
+
+Object  
+	└── Throwable  
+				├── Exception 
+				      │    ├── Checked Exception    
+				        │    └──` RuntimeException (Unchecked) `   
+				└── Error
+		
+
+### در جاوا `try` و `catch` برای **مدیریت خطاها** استفاده می‌شوند.
+
+
+- داخل `try` کدی را می‌نویسی که ممکن است خطا بدهد.
+- اگر خطا رخ داد، اجرای بقیه‌ی `try` قطع می‌شود و کنترل به `catch` می‌رود.
+- اگر خطا رخ نداد، `catch` اجرا نمی‌شود.
+
+
+
+```java
+try {    
+// کدهای خطرناک 
+} 
+catch (Exception e) {     // برخورد با خطا
+ }
+```
+---
+
+## مثال 1: بدون خطا
+
+
+
+```java
+try {  
+   int x = 10 / 2;  
+      System.out.println(x); 
+      } catch (ArithmeticException e) {  
+         System.out.println("Division error"); 
+         }
+```
+
+### خروجی:
+
+`5`
+
+چون خطایی رخ نداده، `catch` اجرا نمی‌شود.
+
+
+## مثال 2: با خطا
+
+
+
+```java
+try {    
+ int x = 10 / 0;  
+   System.out.println(x);
+    } catch (ArithmeticException e) {  
+       System.out.println("Division by zero"); 
+       }
+```
+
+### خروجی:
+
+
+`Division by zero`
+
+وقتی `10 تقسیم بر 0` اجرا می‌شود، `ArithmeticException` رخ می‌دهد و:
+
+- بقیه‌ی `try` اجرا نمی‌شود
+- برنامه وارد `catch` می‌شود
+
+## چند `catch`
+
+می‌توانی برای خطاهای مختلف `catch`های جدا بنویسی:
+
+
+
+```java
+try {
+     String s = null;
+          System.out.println(s.length());
+           } catch (NullPointerException e) {   
+             System.out.println("Null value");
+              } catch (Exception e) {  
+                 System.out.println("General error");
+                  }
+```
+
+
+## ترتیب `catch` مهم است
+
+از **خاص‌تر به عمومی‌تر** بنویس:
+
+
+```java
+try {  
+ // ... 
+ } catch (NullPointerException e) {  
+    // specific 
+ } catch (Exception e) {   
+   // general
+     }
+```
+
+اگر اول `Exception` بگذاری، بقیه unreachable می‌شوند.
+
+
+## `finally`
+
+گاهی همراه `try-catch` از `finally` هم استفاده می‌شود:
+
+
+
+```java
+try {   
+  int x = 10 / 0; 
+  } catch (ArithmeticException e) { 
+      System.out.println("Error"); 
+      } finally {    
+       System.out.println("This always runs");
+        }
+```
+
+### خروجی:
+
+
+`Error This always runs`
+
+`finally` تقریباً همیشه اجرا می‌شود، چه خطا باشد چه نباشد.
+
+
+
+## جریان اجرا
+
+مثلاً در این کد:
+
+
+
+```java
+`try { 
+    System.out.println("A");  
+       int x = 10 / 0;   
+         System.out.println("B");
+          } catch (ArithmeticException e) { 
+              System.out.println("Caught"); 
+              } 
+              System.out.println("End");
+```
+
+### خروجی:
+
+
+
+`A
+Caught
+End`
+
+چرا؟
+
+- `A` چاپ می‌شود
+- خطا رخ می‌دهد
+- `B` دیگر اجرا نمی‌شود
+- `catch` اجرا می‌شود
+- بعد برنامه ادامه پیدا می‌کند و `End` چاپ می‌شود
+
+
+
+## نکته مهم
+
+`try-catch`
+**خطا را رفع نمی‌کند**؛ فقط باعث می‌شود برنامه **متوقف کامل نشود** و بتوانی کنترل کنی چه کاری انجام شود.
+
+
+## مثال کاربردی
+
+
+
+```java
+`try {  
+   int[] arr = {1, 2, 3};   
+	System.out.println(arr[5]); 
+     }
+      catch (ArrayIndexOutOfBoundsException e) {
+           System.out.println("Index is invalid");
+            }
+```
+
+
+```java
+try {  
+FileReader fr = new FileReader("a.txt");
+} catch (IOException e) { 
+e.printStackTrace(); 
+}
+```
+
+یا:
+
+
+```java
+public void readFile() throws IOException {
+     FileReader fr = new FileReader("a.txt"); 
+     }
+```
+
+
+
+
+---
+
 # Interface در جاوا
 
 اینترفیس یک **قرارداد (contract)** است که مشخص می‌کند یک کلاس **چه متدهایی باید داشته باشد**، بدون اینکه پیاده‌سازی آن‌ها را مشخص کند.
@@ -1932,3 +2197,28 @@ class Vehicle {
 1. فقط **یک کلاس والد** (Single inheritance).
 2. ممکن است باعث **وابستگی زیاد** بین کلاس‌ها شود.
 3. ارث‌بری، خصوصیات `private` والد را در دسترس فرزند قرار نمی‌دهد.
+---
+# ساخت exception سفارشی ( بخش دوم مدیریت خطا درجاوا)
+
+
+
+```java
+public class InvalidAgeException extends Exception { 
+    public InvalidAgeException(String message) {  
+           super(message);   
+             }
+              }
+```
+
+استفاده:
+
+```java
+public void checkAge(int age) throws InvalidAgeException {  
+   if (age < 18) {   
+         throw new InvalidAgeException("Age must be at least 18"); 
+             } 
+             }
+```
+
+
+---
